@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anyfile Uploader</title>
+    <link rel="shortcut icon" href="./static/favicon.ico">
+    <link rel="stylesheet" href="./static/style.css">
+
+    <link href="https://fonts.googleapis.com/css2?family=Oswald&display=swap" rel="stylesheet">
+    
+</head>
+<body>
+
+    <div id="upload-form">
+        <h1 style="color: purple;" >ANYFILE<br>UPLOADER</h1>
+        <form method="POST" action="/upload" enctype="multipart/form-data">
+            <p>Upload your files</p>
+            <input type="file" name="files[]" multiple>
+            <input type="submit" value="Upload">
+        </form>
+    </div>
+
+    <div class="file-definition">
+        <h2>File Definition</h2>
+        <table>
+            <thead>
+                <tr>
+                    {% for header in headers %}
+                    <th>{{ header }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in data %}
+                <tr>
+                    {% for item in row %}
+                    <td>{{ item }}</td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <br>
+        ファイル名の例：DXD001_処理機能記述_MOVOツール
+        <br><br>
+        ・Naming Conventionに記載された文字列がファイル名に含まれる場合、そのファイルがBucket Nameで指定されたバケットに格納されます。
+    </div>
+
+    <button class="bottom-left-button" onclick="admin()">管理者ページへ移動</button>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>
