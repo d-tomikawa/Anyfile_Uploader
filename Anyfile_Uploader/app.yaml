@@ -1,9 +1,0 @@
-service: dxg-anyfile-appengine
-
-runtime: python39
-
-entrypoint: gunicorn -b :$PORT main:app
-
-handlers:
-- url: /.*
-  script: auto
