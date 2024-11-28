@@ -139,10 +139,26 @@ def load_excel():
     content = blob.download_as_bytes()  # GCSからExcelファイルをダウンロード
     df = pd.read_excel(io.BytesIO(content))  # PandasでExcelファイルを読み込む
 
+    file_list = {}
+
+    for i in range(len(df)):  # ヘッダー行をスキップ
+        bucketnames = df.iat[i, 2]  # バケット名を取得
+        buckets = storage_client.get_bucket(bucketnames)
+        blobs = buckets.list_blobs()
+
+        # まだバケット名のキーが存在しない場合、空のリストを作成
+        if bucketnames not in file_list:
+            file_list[bucketnames] = []
+
+        # ファイル名をリストに追加
+        for filename in blobs:
+            file_list[bucketnames].append(filename.name)
+
     # DataFrameをJSON形式に変換してフロントエンドに送信
     return jsonify({
         'data': df.values.tolist(),
-        'columns': df.columns.tolist()
+        'columns': df.columns.tolist(),
+        'file_list': file_list
     })
 
 # 管理者ページのマスタ編集
@@ -161,6 +177,7 @@ def save_excel():
     blob.upload_from_string(output.getvalue(), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')  # GCSにアップロード
 
     return jsonify({'message': 'ファイルが正常に保存されました'})
+
 
 
 @app.errorhandler(500)

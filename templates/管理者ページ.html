@@ -16,6 +16,7 @@
     
     <!-- スプレッドシートエリア -->
     <div id="spreadsheet" style="width: 800px; height: 600px;"></div>
+    <br><br><br>
 
     <!-- ボタンをラップするコンテナ -->
     <div class="button-container">
@@ -38,7 +39,15 @@
                     contextMenu: true,  // 右クリックメニューの有効化
                     licenseKey: 'non-commercial-and-evaluation'
                 });
-            });
+            })
+            .then(data => {
+                // 受け取ったデータを表示
+                console.log('Data from Python:', data);
+            })
+
+        
+
+        
 
         // 編集データをサーバーに送信して保存
         function saveData() {

@@ -1,4 +1,4 @@
-service: dxg-anyfile-appengine
+service: dxg-anyfile-appengine-dev
 
 runtime: python39
 
