@@ -59,3 +59,7 @@ function admin() {
         alert('パスワードが異なります')
     }
 }
+
+function uploaded() {
+    window.location.href = '/uploaded';
+}

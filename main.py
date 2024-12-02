@@ -145,6 +145,54 @@ def load_excel():
         'columns': df.columns.tolist()
     })
 
+
+@app.route('/uploaded')
+def uploaded_page():
+    return render_template('アップロード済ファイル一覧.html')
+
+# GCSからExcelファイルを読み込んでフロントエンドに送信
+@app.route('/admin/file_list', methods=['GET'])
+def file_list():
+    storage_client = storage.Client()
+    bucket = storage_client.bucket(BUCKET_NAME)
+    blob = bucket.blob(FILE_DEFINITION)
+    
+    content = blob.download_as_bytes()  # GCSからExcelファイルをダウンロード
+    df = pd.read_excel(io.BytesIO(content))  # PandasでExcelファイルを読み込む
+
+    df_file_list = pd.DataFrame()
+    blobs_list = []
+
+    for i in range(df.shape[1] - 1):  # ヘッダー行をスキップ
+        bucketnames = df.iat[i, 2]  # バケット名を取得
+        buckets = storage_client.get_bucket(bucketnames)
+        blobs = buckets.list_blobs()
+        blobs_list = [blob.name for blob in blobs]
+
+        print("ログ1:",bucketnames)
+        print("ログ2:",blobs_list)
+
+        if bucketnames not in df_file_list.columns:
+            df_file_list[bucketnames] = pd.Series(dtype=object) 
+
+        print ("ログ3：", df_file_list)
+        # ファイル名をリストに追加
+        for j, filename in enumerate(blobs_list):
+            df_file_list.at[j, bucketnames] = filename
+
+    df_file_list = df_file_list.where(df_file_list.notnull(), "")
+            
+    
+    print("ログ4:", df_file_list)
+    print("ログ5:", blobs_list)
+
+    # DataFrameをJSON形式に変換してフロントエンドに送信
+    return jsonify({
+        'data': df_file_list.values.tolist(),
+        'columns': df_file_list.columns.tolist()
+    })
+
+
 # 管理者ページのマスタ編集
 @app.route('/admin/save_excel', methods=['POST'])
 def save_excel():
@@ -161,6 +209,7 @@ def save_excel():
     blob.upload_from_string(output.getvalue(), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')  # GCSにアップロード
 
     return jsonify({'message': 'ファイルが正常に保存されました'})
+
 
 
 @app.errorhandler(500)

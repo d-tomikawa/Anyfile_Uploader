@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>アップロード済ファイル一覧</title>
+    <!-- Handsontableのスタイルとスクリプト -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.js"></script>
+    <!-- カスタムスタイル -->
+    <link rel="shortcut icon" href="./static/favicon.ico">
+    <link rel="stylesheet" href="./static/style_uploaded.css">
+</head>
+<body>
+    <h1>アップロード済ファイル一覧</h1>
+
+
+    <!-- ボタンをラップするコンテナ -->
+    <div class="button-container">
+        <button onclick="window.history.back();">戻る</button>
+    </div>
+
+    <script>
+        let hot;
+
+        // サーバーからExcelデータを取得してHandsontableで表示
+        fetch('/admin/file_list')  // エンドポイントをサーバー側のものに合わせる
+            .then(response => response.json())
+            .then(data => {
+                hot = new Handsontable(document.getElementById('spreadsheet'), {
+                    data: data.data,  // Excelのデータをセット
+                    colHeaders: data.columns,  // 列のヘッダーをセット
+                    rowHeaders: true,  // 行番号を表示
+                    minSpareRows: 1,  // 追加行を1行用意
+                    licenseKey: 'non-commercial-and-evaluation'
+                });
+            });
+    </script>
+</body>
+</html>

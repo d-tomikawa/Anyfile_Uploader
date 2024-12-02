@@ -1,0 +1,51 @@
+/* bodyのスタイルを修正して、画面中央に配置 */
+body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+}
+
+/* スプレッドシートエリアのスタイル */
+#spreadsheet {
+    width: 800px;
+    height: 600px;
+    margin: 50px auto; /* 上下50pxの余白と横方向中央揃え */
+    border: 1px solid #ddd; /* 境界線を追加 */
+    background-color: #f9f9f9; /* 背景色を追加 */
+}
+
+
+/* ボタンのスタイル */
+button {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+/* h1 タイトルのスタイル */
+h1 {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* ボタンを横並びにするためのコンテナのスタイル */
+.button-container {
+    display: flex;
+    justify-content: center; /* 中央寄せ */
+    gap: 10px; /* ボタン間の隙間を設定 */
+    margin-top: 10px; /* 上部の余白を追加 */
+}
+
