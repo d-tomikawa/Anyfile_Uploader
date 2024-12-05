@@ -32,6 +32,8 @@ def load_excel():
     # NaNは数値型の空欄であり、エラーになりやすい。文字列型の空欄にすればエラーを回避しやすい。
     df = df.where(df.notnull(), "")  
 
+    df.drop(df.index[[0, 1, 2, 3, 4]])
+
     # DataFrameをJSON形式に変換してフロントエンドに送信
     return jsonify({
         'data': df.values.tolist(),  # dfを配列として取得し、リストに変換する
