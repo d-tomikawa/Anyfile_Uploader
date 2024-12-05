@@ -1,65 +1,58 @@
-document.addEventListener("DOMContentLoaded", function() {
-    let dropArea = document.getElementById('drop-area');
-    
-    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-        dropArea.addEventListener(eventName, preventDefaults, false);
-    });
+document.addEventListener('DOMContentLoaded', () => {
+    let hot; // hotという変数の定義
 
-    function preventDefaults(e) {
-        e.preventDefault();
-        e.stopPropagation();
+    // 表を描画する
+    function initializeHandsontable(data, columns) {  //関数定義。pythonでいうdef関数
+        const container = document.getElementById('spreadsheet');  //今開いているhtmlから'spreadsheet'を探し、その画面に表示させる
+        hot = new Handsontable(container, {  //下記条件で表を生成して画面に描画
+            data: data || [],  //dataが渡されていればその値を使用、空や未定義の場合は空セルにする
+            colHeaders: columns || [],  //ヘッダーの設定で上記と同様
+            rowHeaders: true,  //行番号表示
+            minSpareRows: 1,  //表の下に常に1行の空行を表示
+            contextMenu: true,  //セルを右クリックした際に表示されるコンテキストメニュー（コピー、ペースト、削除など）を有効化
+            licenseKey: 'non-commercial-and-evaluation'  //Handsontableを動作させるための無償ライセンスキーを設定
+        });
     }
 
-    ['dragenter', 'dragover'].forEach(eventName => {
-        dropArea.addEventListener(eventName, highlight, false);
-    });
-
-    ['dragleave', 'drop'].forEach(eventName => {
-        dropArea.addEventListener(eventName, unhighlight, false);
-    });
-
-    function highlight(e) {
-        dropArea.classList.add('highlight');
+    // サーバーからデータを取得して表示
+    function loadExcelData() {  //関数定義
+        fetch('/admin/load_excel')  //サーバー上の/admin/load_excelエンドポイントにHTTPリクエストを送信
+            .then(response => {  //python側からreturnで帰ってきたjsonデータを確認し、次の.thenに渡す
+                if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+                return response.json();
+            })
+            //python側からreturnで帰ってきたjsonデータがdataに入る。
+            //initializeHandsontable関数を呼び出し、jsonデータを渡した実行結果をdataに入れる
+            .then(data => initializeHandsontable(data.data, data.columns))
+            .catch(error => console.error('Error loading data:', error));  //エラーハンドリング
     }
 
-    function unhighlight(e) {
-        dropArea.classList.remove('highlight');
+    // 変更した表を保存する
+    function saveExcelData() {  //関数定義
+        const updatedData = {  //updatedDataという変数に下記データを格納
+            data: hot.getData(),  //現在表示されている表データを取得
+            columns: hot.getColHeader()  //現在表示されているヘッダーを取得
+        };
+
+        fetch('/admin/save_excel', {  //サーバーの/admin/save_excelエンドポイントにデータを送信
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(updatedData)  //現在の表データが格納されたupdatedDataをjson形式にする
+        })
+        .then(response => {  //上記jsonデータを確認し、バックエンドに渡す
+            if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+            return response.json();
+        })
+        .then(result => alert(result.message))
+        .catch(error => {
+            console.error('Error saving data:', error);
+            alert('データの保存に失敗しました。');
+        });
     }
 
-    dropArea.addEventListener('drop', handleDrop, false);
+    // 最初に実行される
+    loadExcelData();
 
-    function handleDrop(e) {
-        let dt = e.dataTransfer;
-        let files = dt.files;
-
-        let input = dropArea.querySelector('input[type=file]');
-        input.files = files;
-        updateFileList();
-    }
-
-    function updateFileList() {
-        let input = document.querySelector('input[type=file]');
-        let fileList = document.getElementById('file-list');
-        fileList.innerHTML = '';
-        for (let i = 0; i < input.files.length; i++) {
-            let file = input.files[i];
-            let li = document.createElement('li');
-            li.textContent = file.name;
-            fileList.appendChild(li);
-        }
-    }
+    // id="saveButton"を持つボタンをクリックしたときに、saveExcelDataという関数を実行する
+    document.getElementById('saveButton').addEventListener('click', saveExcelData);
 });
-
-function admin() {
-    pw = prompt('パスワードを入力してください');
-    if (pw == '1234') {
-        window.location.href = '/admin';
-    }
-    else {
-        alert('パスワードが異なります')
-    }
-}
-
-function uploaded() {
-    window.location.href = '/uploaded';
-}
