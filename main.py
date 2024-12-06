@@ -32,7 +32,7 @@ def load_excel():
     # NaNは数値型の空欄であり、エラーになりやすい。文字列型の空欄にすればエラーを回避しやすい。
     df = df.where(df.notnull(), "")  
 
-    df.drop(df.index[[0, 1, 2, 3, 4]])
+    df.drop(0, 1, 2, 3, 4)
 
     # DataFrameをJSON形式に変換してフロントエンドに送信
     return jsonify({
@@ -73,3 +73,6 @@ def server_error(e: Exception) -> str:
 
 if __name__ == "__main__":
     app.run(host="127.0.0.1", port=8080, debug=True)
+
+
+
